@@ -8,12 +8,12 @@ namespace SalaryCalculatorTest
         void PrintSalaryInformation(EmployeeSalaryRequest employeeSalaryRequest);
     }
 
-    public class SalaryService : ISalaryServiceApplication
+    public class SalaryServiceApplication : ISalaryServiceApplication
     {
         private readonly ISalaryCalculatorFactory salaryCalculatorFactory;
         private readonly ISalaryReport salaryReport;
 
-        public SalaryService(ISalaryCalculatorFactory salaryCalculatorFactory, ISalaryReport salaryReport)
+        public SalaryServiceApplication(ISalaryCalculatorFactory salaryCalculatorFactory, ISalaryReport salaryReport)
         {
             this.salaryCalculatorFactory = salaryCalculatorFactory;
             this.salaryReport = salaryReport;
@@ -21,7 +21,7 @@ namespace SalaryCalculatorTest
 
         public void PrintSalaryInformation(EmployeeSalaryRequest employeeSalaryRequest)
         {
-            SalaryCalculator salaryCalculator = salaryCalculatorFactory.GetSalaryCalculator(employeeSalaryRequest.EmployeeLocation);
+            ISalaryCalculator salaryCalculator = salaryCalculatorFactory.GetSalaryCalculator(employeeSalaryRequest.EmployeeLocation);
             Salary salary = salaryCalculator.CalculateSalary(employeeSalaryRequest.HourlyRate, employeeSalaryRequest.HoursWorked);
             salaryReport.Print(salary, employeeSalaryRequest.EmployeeLocation);
         }

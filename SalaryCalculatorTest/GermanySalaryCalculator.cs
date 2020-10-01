@@ -1,8 +1,10 @@
-﻿using SalaryCalculatorTest.Model;
+﻿using SalaryCalculatorTest.Decorators;
+using SalaryCalculatorTest.Model;
 using System.Collections.Generic;
 
 namespace SalaryCalculatorTest
 {
+    [EmployeeLocation("GERMANY")]
     public class GermanySalaryCalculator : SalaryCalculator, ISalaryCalculator
     {
         protected override List<Deduction> GetDeductions(double grossAmount)

@@ -1,23 +1,44 @@
-﻿using System;
+﻿using SalaryCalculatorTest.Decorators;
+using System;
+using System.Linq;
 
 namespace SalaryCalculatorTest.Factory
 {
-    public interface ISalaryCalculatorFactory
-    {
-        public SalaryCalculator GetSalaryCalculator(string employeeLocation);
-    }
-
     public class SalaryCalculatorFactory : ISalaryCalculatorFactory
     {
-        public SalaryCalculator GetSalaryCalculator(string employeeLocation) 
+        public ISalaryCalculator GetSalaryCalculator(string employeeLocation)
         {
-            return employeeLocation?.ToLower() switch
+            if (string.IsNullOrEmpty(employeeLocation))
             {
-                "ireland" => new IrelandSalaryCalculator(),
-                "italy" => new ItalySalaryCalculator(),
-                "germany" => new GermanySalaryCalculator(),
-                _ => throw new Exception("Unknown location")
-            }; 
+                string message = "Employee location can not be null or empty";
+                throw new NotSupportedException(message);
+            }
+
+            var types = typeof(ISalaryCalculator).Assembly.GetTypes()
+                .Where(type => !type.IsAbstract && typeof(ISalaryCalculator).IsAssignableFrom(type))
+                .ToList();
+
+            ISalaryCalculator salaryCalculator = null;
+            
+            foreach(var type in types)
+            {
+                object[] customAttributes = type.GetCustomAttributes(typeof(EmployeeLocationAttribute), false);
+                EmployeeLocationAttribute attribute = (EmployeeLocationAttribute)customAttributes.FirstOrDefault();
+
+                if (attribute != null && attribute.Location == employeeLocation.ToUpperInvariant())
+                {
+                    salaryCalculator = Activator.CreateInstance(type) as ISalaryCalculator;
+                    break;
+                }
+            }
+
+            if (salaryCalculator == null)
+            {
+                string message = $"Could not find a salary calculator for employee location: '{employeeLocation}'";
+                throw new NotSupportedException(message);
+            }
+
+            return salaryCalculator;
         }
     }
 }
